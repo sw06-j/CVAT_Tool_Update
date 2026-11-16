@@ -1,0 +1,73 @@
+metadata:
+  name: pth-ultralytics-yolov8-thermal
+  namespace: cvat
+  annotations:
+    name: 🔥 열화상 YOLOv8 전용 자동 라벨러
+    type: detector
+    framework: pytorch
+    spec: |
+      [
+        { "id": 0, "name": "class_0", "type": "rectangle" },
+        { "id": 1, "name": "class_1", "type": "rectangle" },
+        { "id": 2, "name": "class_2", "type": "rectangle" },
+        { "id": 3, "name": "class_3", "type": "rectangle" },
+        { "id": 4, "name": "class_4", "type": "rectangle" },
+        { "id": 5, "name": "class_5", "type": "rectangle" },
+        { "id": 6, "name": "class_6", "type": "rectangle" },
+        { "id": 7, "name": "class_7", "type": "rectangle" },
+        { "id": 8, "name": "class_8", "type": "rectangle" },
+        { "id": 9, "name": "class_9", "type": "rectangle" },
+        { "id": 10, "name": "class_10", "type": "rectangle" },
+        { "id": 11, "name": "class_11", "type": "rectangle" },
+        { "id": 12, "name": "class_12", "type": "rectangle" },
+        { "id": 13, "name": "class_13", "type": "rectangle" },
+        { "id": 14, "name": "class_14", "type": "rectangle" },
+        { "id": 15, "name": "class_15", "type": "rectangle" },
+        { "id": 16, "name": "class_16", "type": "rectangle" },
+        { "id": 17, "name": "class_17", "type": "rectangle" },
+        { "id": 18, "name": "class_18", "type": "rectangle" },
+        { "id": 19, "name": "class_19", "type": "rectangle" },
+        { "id": 20, "name": "class_20", "type": "rectangle" },
+        { "id": 21, "name": "class_21", "type": "rectangle" },
+        { "id": 22, "name": "class_22", "type": "rectangle" },
+        { "id": 23, "name": "class_23", "type": "rectangle" },
+        { "id": 24, "name": "class_24", "type": "rectangle" },
+        { "id": 25, "name": "class_25", "type": "rectangle" },
+        { "id": 26, "name": "class_26", "type": "rectangle" },
+        { "id": 27, "name": "class_27", "type": "rectangle" },
+        { "id": 28, "name": "class_28", "type": "rectangle" },
+        { "id": 29, "name": "class_29", "type": "rectangle" }
+      ]
+
+spec:
+  description: 커스텀 열화상 데이터셋 전용 YOLOv8 범용 동적 자동 사전 라벨링 추론 모델
+  runtime: python:3.10
+  handler: main:handler
+  eventTimeout: 60s
+
+  build:
+    baseImage: ubuntu:22.04
+    directives:
+      preCopy:
+        - kind: RUN
+          value: apt update && apt install -y python-is-python3 python3-pip libgl1 libglib2.0-0 && rm -rf /var/lib/apt/lists/*
+        - kind: RUN
+          value: pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cpu --default-timeout=1000
+        - kind: RUN
+          value: pip install ultralytics opencv-python-headless pillow pyyaml --default-timeout=1000
+
+  triggers:
+    myHttpTrigger:
+      numWorkers: 2
+      kind: 'http'
+      workerAvailabilityTimeoutMilliseconds: 10000
+      attributes:
+        maxRequestBodySize: 33554432
+        port: 32001
+
+  platform:
+    attributes:
+      restartPolicy:
+        name: always
+        maximumRetryCount: 3
+      mountMode: volume

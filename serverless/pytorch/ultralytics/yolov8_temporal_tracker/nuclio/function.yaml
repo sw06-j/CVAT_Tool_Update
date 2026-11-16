@@ -1,0 +1,40 @@
+metadata:
+  name: pth-ultralytics-yolov8-temporal-tracker
+  namespace: cvat
+  annotations:
+    name: 🎯 열화상 시계열 자동 추적 (N1→N2)
+    type: tracker
+    spec:
+
+spec:
+  description: YOLO v8 + Optical Flow 기반 열화상 시계열 추적. AI Tools > Trackers에서 사용하세요.
+  runtime: 'python:3.10'
+  handler: main:handler
+  eventTimeout: 60s
+
+  build:
+    image: cvat.pth.ultralytics.yolov8.temporal.tracker
+    baseImage: ubuntu:22.04
+    directives:
+      preCopy:
+        - kind: RUN
+          value: apt update && apt install -y python-is-python3 python3-pip libgl1 libglib2.0-0 && rm -rf /var/lib/apt/lists/*
+        - kind: RUN
+          value: pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cpu --default-timeout=1000
+        - kind: RUN
+          value: pip install ultralytics opencv-python-headless pillow --default-timeout=1000
+
+  triggers:
+    myHttpTrigger:
+      numWorkers: 1
+      kind: 'http'
+      workerAvailabilityTimeoutMilliseconds: 10000
+      attributes:
+        maxRequestBodySize: 268435456
+
+  platform:
+    attributes:
+      restartPolicy:
+        name: always
+        maximumRetryCount: 3
+      mountMode: volume
